@@ -1,0 +1,27 @@
+Tables
+
+CREATE TABLE User (
+    user_id INTEGER PRIMARY KEY AutoIncrement NOT NULL,
+    age INTEGER(2),
+   -- gender VARCHAR(10),
+   -- occupation VARCHAR(20),
+    zipcode VARCHAR(10)
+    email VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Data (
+    rating_id INTEGER PRIMARY KEY NOT NULL,
+        FOREIGN KEY(movie_id) REFERENCES Item(movie_id),
+    user_id INTEGER,
+        FOREIGN KEY(user_id) REFERENCES Item(user_id),
+    score INTEGER,
+    timestamp TEXT
+);
+
+CREATE TABLE Item (
+    movie_id INTEGER PRIMARY KEY AutoIncrement NOT NULL,
+    movie_title VARCHAR(50),
+    release_date TEXT,
+    imdb_url VARCHAR (100)
+);
