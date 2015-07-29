@@ -2,6 +2,7 @@
 
 from model import User, Rating, Movie, connect_to_db, db
 from server import app
+from datetime import datetime
 
 
 def load_users():
@@ -11,43 +12,50 @@ def load_users():
 
     # Iterates over each line in File.
     for line in user_file.readlines():
-        # user_info =
         # Splits line into list of strings.
-        line.rstrip("\n")
+        line = line.rstrip()
         user_info = line.split("|")
-        # second for loop Iterates over each item in list.
-        # Adds each item to database.
-        # import pdb; pdb.set_trace()
         person = User(user_id=user_info[0],age=user_info[1],zipcode=user_info[4],email='NULL',password='NULL')
 
         db.session.add(person)
-        db.session.commit()
-        # for item in user_info: 
-        #     import pdb; pdb.set_trace()
-        #     person = User(user_id=item,age=item,zipcode=item,email='NULL',password='NULL')
+    db.session.commit()
 
-        #     db.session.add(person)
-        #     db.session.commit()
-        # declare variable for user. see sample
-#  >>> juanita = User(user_id=5, email="juanita@gmail.com",
-# ...     password="abc123", age=42, zipcode="94103")
-# >>> db.session.add(juanita)
-# >>> db.session.commit()
-        # commit
-    # Moves on to next line. does the same thing in the second for loop
-    # for each line.
     print "IT IS DONE"
     user_file.close() #Closes the file. 
-# Check database to make sure this part works.
-# run seed.py
+
 
 def load_movies():
     """Load movies from u.item into database."""
+    item_file = open("seed_data/u.item")
+    for line in item_file.readlines():
+        movie_info = line.split("|")
+        date_file = movie_info[2]
+        if movie_info[2]=="":
+            date_file = "01-Jan-1000"
+        date = datetime.strptime(date_file,"%d-%b-%Y")
 
+        title = movie_info[1]
+        title = title[:-7]
+        movie = Movie(movie_id=movie_info[0],title=title,released_at=date,imdb_url=movie_info[4])
+
+        db.session.add(movie)
+    db.session.commit()
+    print "MOVIE LOADS DONE"
+
+    item_file.close()
 
 def load_ratings():
     """Load ratings from u.data into database."""
+    rating_file = open("seed_data/u.data")
+    for line in rating_file.readlines():
+        line = line.rstrip()
+        rating_info = line.split("\t")
+        ratings = Rating(movie_id=rating_info[0],user_id=rating_info[1],score=rating_info[2])
+        db.session.add(ratings)
+    db.session.commit()
 
+    print "IT IS DONE"
+    rating_file.close() #Closes the file. 
 
 if __name__ == "__main__":
     connect_to_db(app)
