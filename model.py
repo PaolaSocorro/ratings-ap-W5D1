@@ -33,7 +33,7 @@ class User(db.Model):
 class Movie(db.Model):
     """ Movie info table of ratings website."""
 
-    __tablename__="movie"
+    __tablename__="movies"
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     title = db.Column(db.String(64), nullable=True)
@@ -48,12 +48,20 @@ class Movie(db.Model):
 class Rating(db.Model):
     """ Rating of movies in rating website"""
 
-    __tablename__="rating"
+    __tablename__="ratings"
 
     rating_id= db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id= db.Column(db.Integer, nullable=False)
-    user_id= db.Column(db.Integer, nullable=False)
-    score= db.Column(db.Integer, nullable=True)
+    user_id= db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    movie_id= db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
+    score= db.Column(db.Integer)
+
+    #Define relationship to user
+    user = db.relationship("User",
+                            backref=db.backref("ratings", order_by=rating_id))
+
+    #Define relationship to movie
+    movie = db.relationship("Movie",
+                            backref=db.backref("ratings", order_by=rating_id))
 
 
     def __repr__(self):

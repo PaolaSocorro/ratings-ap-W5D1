@@ -50,11 +50,11 @@ def load_ratings():
     for line in rating_file.readlines():
         line = line.rstrip()
         rating_info = line.split("\t")
-        ratings = Rating(movie_id=rating_info[0],user_id=rating_info[1],score=rating_info[2])
+        ratings = Rating(user_id=rating_info[0],movie_id=rating_info[1],score=rating_info[2])
         db.session.add(ratings)
     db.session.commit()
 
-    print "IT IS DONE"
+    print "ICH HABE FERTIG"
     rating_file.close() #Closes the file. 
 
 if __name__ == "__main__":
