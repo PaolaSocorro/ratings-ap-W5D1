@@ -36,32 +36,65 @@ def user_list():
 def user_profile(id):
     """Show user profile"""
 
-    all_ratings = db.session.query(User, Movie).join(Movie).all()
+    
+    # all_ratings = Rating.query(Rating.user_id=id, Rating.movie_id).join(Movie).all()
     this_user = User.query.filter_by(user_id=id).one()
+    all_ratings = db.session.query(Rating.user_id, Rating.movie_id, Movie.title, 
+                    Rating.score).join(Movie).filter(Rating.user_id==id).all()
+   
+
     age = this_user.age
     zipcode = this_user.zipcode
-    print id, age, zipcode
+    print id, age, zipcode, all_ratings
 
-    return render_template("user_profile.html", username=id, age=age, zipcode=zipcode)
+    return render_template("user_profile.html", username=id, age=age, zipcode=zipcode, all_ratings=all_ratings)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_form():
     """ Login  """
-
+    # import pdb; pdb.set_trace()
     if request.method == 'POST':
-        username = request.form.get("username") # ""
+        email = request.form.get("email") # ""
         password = request.form.get("password") # ""
 
-        credentials = (username, password)
+        credentials = (email, password)
+        dbemails = db.session.query(User.email==email).all()
 
-        session['login_id'] = credentials
-        flash('You were successfully logged in')
-
-        print "LOOK HERE NOW", session
-        return redirect("/")
+        if email in dbemails:  
+            session['login_id'] = credentials 
+            flash('You were successfully logged in')
+            print "LOOK HERE NOW", session
+            return redirect("/signup")
+        else:
+            flash('PLEASE SIGN UP!')
+            return redirect("/signup")
 
     else:
         return render_template("login_form.html")
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup_form():
+    """ Sign Up"""
+
+    if request.method == 'POST':
+        email = request.form.get("email") 
+        password = request.form.get("password")
+        age = request.form.get("age")
+        zipcode = request.form.get("zipcode")
+
+        person = User(age=age,zipcode=zipcode,email=email,password=password)
+
+        db.session.add(person)
+        # db.session.commit()
+        # new_userid = db.session.query.get(User.user_id).last()
+
+        print person
+
+    else:
+        return render_template("signup.html")
+
+
 
 @app.route('/logout')
 def log_out():
@@ -73,6 +106,12 @@ def log_out():
         print "Logged out:" , session
 
     return redirect("/")
+
+@app.route('/allmovies')
+def list_movies():
+
+
+    return render_template("movies_list.html")
 
 
 if __name__ == "__main__":

@@ -5,5 +5,13 @@
 
 User ID: {{ username }}<br>
 Age: {{ age}}<br>
-Zipcode: {{zipcode}}
+Zipcode: {{zipcode}}<br>
+Movie ratings:
+<ul>
+{% for movie in all_ratings %}
+
+    <li>{{ movie[2]}} - {{ movie[3] }}</li>
+
+{% endfor %}
+</ul>
 {% endblock %}
