@@ -32,12 +32,17 @@ def user_list():
     users = User.query.all()
     return render_template('user_list.html', users=users)
 
+
+
+
 @app.route('/users/<int:id>')
 def user_profile(id):
-    """Show user profile"""
+    """Show user profile
+    all_ratings, joins ratings and movie table together. 
+    returns list of all movies and ratings from one user.
+    """
 
     
-    # all_ratings = Rating.query(Rating.user_id=id, Rating.movie_id).join(Movie).all()
     this_user = User.query.filter_by(user_id=id).one()
     all_ratings = db.session.query(Rating.user_id, Rating.movie_id, Movie.title, 
                     Rating.score).join(Movie).filter(Rating.user_id==id).all()
@@ -51,9 +56,16 @@ def user_profile(id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_form():
-    """ Login  """
+    """ Login  
+     take email, password from user form
+     check if credentials exist in database, by checking if 
+     email is in user table.
+     if email in table, redirect to their profile
+     if not redirect to sign up page.
+
+    """
     # import pdb; pdb.set_trace()
-    if request.method == 'POST':
+    if request.method == 'POST': #Process form if route gets a POST request
         email = request.form.get("email") # ""
         password = request.form.get("password") # ""
 
@@ -64,18 +76,21 @@ def login_form():
             session['login_id'] = credentials 
             flash('You were successfully logged in')
             print "LOOK HERE NOW", session
-            return redirect("/signup")
+            return redirect("/") # REDIRECT TO PROFILE PAGE.FIX
         else:
             flash('PLEASE SIGN UP!')
             return redirect("/signup")
 
-    else:
+    else: #TAKE user to login page if route process a  GET request
         return render_template("login_form.html")
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup_form():
-    """ Sign Up"""
+    """ Sign Up
+        Add email, password,age,zipcode then commit new person to database.
+        Find new user, and redirect to their profile page. 
+    """
 
     if request.method == 'POST':
         email = request.form.get("email") 
@@ -86,19 +101,24 @@ def signup_form():
         person = User(age=age,zipcode=zipcode,email=email,password=password)
 
         db.session.add(person)
-        # db.session.commit()
-        # new_userid = db.session.query.get(User.user_id).last()
+        db.session.commit()
+        # new_userid = db.session.query.get(User.user_id.desc()).first()
 
         print person
 
     else:
         return render_template("signup.html")
 
+    return redirect("/")
+
 
 
 @app.route('/logout')
 def log_out():
-    """Log out"""
+    """Log out
+    redirect to homepage when logged out
+
+    """
     # If enough time: hide login/logout button depending if login/logout 
     if session["login_id"] in session:
         del session['login_id']
@@ -107,11 +127,17 @@ def log_out():
 
     return redirect("/")
 
-@app.route('/allmovies')
+
+
+@app.route('/movies')
 def list_movies():
+    """Show a list of all the movies
+        Ordered by title"""
+
+    all_movies = db.session.query(Movie).order_by(Movie.title).all()
 
 
-    return render_template("movies_list.html")
+    return render_template("movies_list.html",all_movies=all_movies)
 
 
 if __name__ == "__main__":
