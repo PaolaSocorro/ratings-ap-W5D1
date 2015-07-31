@@ -70,16 +70,29 @@ def login_form():
         password = request.form.get("password") # ""
 
         credentials = (email, password)
-        dbemails = db.session.query(User.email==email).all()
+        dbemails = db.session.query(User.email).all()
 
-        if email in dbemails:  
-            session['login_id'] = credentials 
-            flash('You were successfully logged in')
-            print "LOOK HERE NOW", session
-            return redirect("/") # REDIRECT TO PROFILE PAGE.FIX
-        else:
+        print email, type(email)
+        print "Query Ran"
+        print type(dbemails)
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
             flash('PLEASE SIGN UP!')
             return redirect("/signup")
+        else:
+            if user.password != password:
+                print password
+                flash('Incorrect password')
+                return redirect("/login")
+
+            session['login_id'] = credentials 
+            print "SESSION: ", session
+            flash('You were successfully logged in')
+            return redirect("/users/%s" % user.user_id) # REDIRECT TO PROFILE PAGE.FIX
+        
+
 
     else: #TAKE user to login page if route process a  GET request
         return render_template("login_form.html")
