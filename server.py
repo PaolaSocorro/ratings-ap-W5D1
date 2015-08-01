@@ -17,7 +17,6 @@ app.secret_key = "ABC"
 # This is horrible. Fix this so that, instead, it raises an error.
 app.jinja_env.undefined = StrictUndefined
 
-DEBUG_TB_INTERCEPT_REDIRECTS = False
 
 @app.route('/')
 def index():
@@ -87,7 +86,7 @@ def login_form():
                 flash('Incorrect password')
                 return redirect("/login")
 
-            session['login_id'] = credentials 
+            session["login_id"] = credentials 
             print "SESSION: ", session
             flash('You were successfully logged in')
             return redirect("/users/%s" % user.user_id) # REDIRECT TO PROFILE PAGE.FIX
@@ -132,13 +131,15 @@ def log_out():
     redirect to homepage when logged out
 
     """
+    credentials = session["login_id"]
+    print credentials
     # If enough time: hide login/logout button depending if login/logout 
-    if session["login_id"] in session:
-        del session['login_id']
+    if "login_id" in session:
+        del session["login_id"]
         flash('You no cool anymore')
         print "Logged out:" , session
 
-    return redirect("/")
+        return redirect("/")
 
 
 
